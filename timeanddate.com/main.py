@@ -4,12 +4,11 @@ from city_weather import fetch_weather_details, fetch_location_weather_urls
 
 
 def main():
-
     # Get the country name input from the user
     country_input = input("Enter the country name for weather and time zone information: ")
     filename = country_input.strip().replace(" ", "_").lower() + ".txt"
 
-    with open(filename, 'w') as file:
+    with open(filename, 'w', encoding='utf-8') as file:  # Specify encoding here
         country_url_part = country_input.strip().replace(" ", "-").lower()
 
         # Fetch the country's timezone and other information
@@ -30,7 +29,6 @@ def main():
         for url in location_urls:
             city_weather = fetch_weather_details(url)
             file.write(city_weather + '\n\n')
-
 
 if __name__ == "__main__":
     main()
