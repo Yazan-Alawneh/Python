@@ -23,9 +23,19 @@ def fetch_weather_details(location_url):
     temperature = soup.find('div', class_='h2').get_text(strip=True) if soup.find('div', class_='h2') else "N/A"
     weather = soup.find('p').get_text(strip=True) if soup.find('p') else "N/A"
 
-    # Extracting "Feels Like" information
-    feels_like_element = soup.find('p', string=re.compile('Feels Like'))
-    feels_like = feels_like_element.get_text(strip=True) if feels_like_element else "N/A"
+    # Extracting "Feels Like" information by navigating to the next siblings
+    feels_like = "N/A"
+    temperature_element = soup.find('div', class_='h2')
+    if temperature_element:
+        for sibling in temperature_element.next_siblings:
+            if sibling.name == 'p' and 'Feels Like' in sibling.text:
+                # Extract the text, split on '°C' to get just the "Feels Like" temperature part
+                feels_like_text = sibling.get_text(strip=True)
+                feels_like_parts = feels_like_text.split('°C')
+                if len(feels_like_parts) > 1:
+                    # Extract the temperature part and add '°C' back
+                    feels_like = feels_like_parts[0].split('Feels Like:')[1].strip() + '°C'
+                break
 
     # Extracting "Forecast" information
     forecast_element = soup.find('span', title=re.compile('forecasted temperature today'))
@@ -50,7 +60,7 @@ def fetch_weather_details(location_url):
     weather_details_string += f"Location: {location_name}\n"
     weather_details_string += f"Temperature: {temperature}\n"
     weather_details_string += f"Weather: {weather}\n"
-    weather_details_string += f"Feels Like: {feels_like}\n"
+    weather_details_string += f"Feels Like: {feels_like}\n"  # '°C' is already appended to feels_like
     weather_details_string += f"Forecast: {forecast}\n"
     weather_details_string += f"Wind: {wind}\n"
 
